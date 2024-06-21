@@ -111,10 +111,7 @@
   align-items: center;
   justify-content: center;
 }
-.col:hover {
-  transform: scale(1.1);
-  transition: all 0.5s;
-}
+
 #bfb1 {
   backdrop-filter: blur(2px);
   color: #007bff;
