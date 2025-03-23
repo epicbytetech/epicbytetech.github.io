@@ -31,8 +31,8 @@
             const populationStatus = document.getElementById("population-status");
             const fishImage = document.getElementById("fish-image");
 
-            // Fetch fish species from FishWatch API
-            fetch("https://www.fishwatch.gov/api/species")
+            // Fetch fish species from FishWatch API with CORS proxy
+            fetch("https://corsproxy.io/?https://www.fishwatch.gov/api/species")
                 .then(response => response.json())
                 .then(data => {
                     select.innerHTML = '<option value="">--Choose a Fish--</option>';
