@@ -15,6 +15,11 @@
     <h2>Select a Fish Species</h2>
     <select id="fish-select">
         <option value="">--Choose a Fish--</option>
+        <option value="Atlantic Salmon" data-img="https://www.fishwatch.gov/images/atlantic-salmon.jpg" data-status="Recovering">Atlantic Salmon</option>
+        <option value="Pacific Cod" data-img="https://www.fishwatch.gov/images/pacific-cod.jpg" data-status="Sustainable">Pacific Cod</option>
+        <option value="Yellowfin Tuna" data-img="https://www.fishwatch.gov/images/yellowfin-tuna.jpg" data-status="Overfished">Yellowfin Tuna</option>
+        <option value="Alaska Pollock" data-img="https://www.fishwatch.gov/images/alaska-pollock.jpg" data-status="Healthy">Alaska Pollock</option>
+        <option value="Gulf Shrimp" data-img="https://www.fishwatch.gov/images/gulf-shrimp.jpg" data-status="Stable">Gulf Shrimp</option>
     </select>
 
     <div id="fish-info">
@@ -24,34 +29,12 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            fetch('https://www.fishwatch.gov/api/species')
-                .then(response => response.json())
-                .then(data => {
-                    let select = document.getElementById("fish-select");
-                    
-                    // Select 10 fish species dynamically
-                    let fishList = data.slice(0, 10);
-
-                    fishList.forEach(fish => {
-                        let option = document.createElement("option");
-                        option.value = fish["Species Name"];
-                        option.setAttribute("data-img", fish["Image Gallery"][0]?.src || "");
-                        option.setAttribute("data-status", fish["Population Status"] || "Unknown");
-                        option.textContent = fish["Species Name"];
-                        select.appendChild(option);
-                    });
-
-                    // Display selected fish info
-                    select.addEventListener("change", function () {
-                        let selectedOption = this.options[this.selectedIndex];
-                        document.getElementById("fish-name").textContent = selectedOption.value;
-                        document.getElementById("fish-status").textContent = "Population Status: " + selectedOption.getAttribute("data-status");
-                        document.getElementById("fish-image").src = selectedOption.getAttribute("data-img");
-                        document.getElementById("fish-image").alt = selectedOption.value;
-                    });
-                })
-                .catch(error => console.error("Error fetching fish data:", error));
+        document.getElementById("fish-select").addEventListener("change", function () {
+            let selectedOption = this.options[this.selectedIndex];
+            document.getElementById("fish-name").textContent = selectedOption.value;
+            document.getElementById("fish-status").textContent = "Population Status: " + selectedOption.getAttribute("data-status");
+            document.getElementById("fish-image").src = selectedOption.getAttribute("data-img");
+            document.getElementById("fish-image").alt = selectedOption.value;
         });
     </script>
 
