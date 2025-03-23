@@ -1,56 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <script>
-        L_NO_TOUCH = false;
-        L_DISABLE_3D = false;
-    </script>
-    <style>html, body {width: 100%; height: 100%; margin: 0; padding: 0;}</style>
-    <style>#map {position:absolute; top:0; bottom:0; right:0; left:0;}</style>
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Species Selector</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        #fish-info { margin-top: 20px; }
+        img { max-width: 300px; height: auto; margin-top: 10px; }
+    </style>
 </head>
 <body>
-    <div class="folium-map" id="map_7a36934c5096bdc33f1b39ca9d9a6e02"></div>
+
+    <h2>Select a Fish Species</h2>
+    <select id="fish-select">
+        <option value="">--Choose a Fish--</option>
+    </select>
+
+    <div id="fish-info">
+        <h3 id="fish-name"></h3>
+        <p id="fish-status"></p>
+        <img id="fish-image" src="" alt="">
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch('https://www.fishwatch.gov/api/species')
+                .then(response => response.json())
+                .then(data => {
+                    let select = document.getElementById("fish-select");
+                    
+                    // Select 10 fish species dynamically
+                    let fishList = data.slice(0, 10);
+
+                    fishList.forEach(fish => {
+                        let option = document.createElement("option");
+                        option.value = fish["Species Name"];
+                        option.setAttribute("data-img", fish["Image Gallery"][0]?.src || "");
+                        option.setAttribute("data-status", fish["Population Status"] || "Unknown");
+                        option.textContent = fish["Species Name"];
+                        select.appendChild(option);
+                    });
+
+                    // Display selected fish info
+                    select.addEventListener("change", function () {
+                        let selectedOption = this.options[this.selectedIndex];
+                        document.getElementById("fish-name").textContent = selectedOption.value;
+                        document.getElementById("fish-status").textContent = "Population Status: " + selectedOption.getAttribute("data-status");
+                        document.getElementById("fish-image").src = selectedOption.getAttribute("data-img");
+                        document.getElementById("fish-image").alt = selectedOption.value;
+                    });
+                })
+                .catch(error => console.error("Error fetching fish data:", error));
+        });
+    </script>
+
 </body>
-<script>
-    var map_7a36934c5096bdc33f1b39ca9d9a6e02 = L.map("map_7a36934c5096bdc33f1b39ca9d9a6e02", {
-        center: [12.8858732, 77.5969814],
-        crs: L.CRS.EPSG3857,
-        zoom: 12,
-        zoomControl: true,
-        preferCanvas: false,
-    });
-
-    var tile_layer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "Data by &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a>, under <a href='http://www.openstreetmap.org/copyright'>ODbL</a>.",
-        maxZoom: 18
-    }).addTo(map_7a36934c5096bdc33f1b39ca9d9a6e02);
-
-    // Add marker with plus symbol
-    var marker = L.marker([12.8858732, 77.5969814]).addTo(map_7a36934c5096bdc33f1b39ca9d9a6e02);
-    
-    var plusIcon = L.AwesomeMarkers.icon({
-        icon: "plus",
-        prefix: "fa",  // Uses FontAwesome for the "+" icon
-        markerColor: "red",
-        iconColor: "white"
-    });
-
-    marker.setIcon(plusIcon);
-    
-    var popup = L.popup().setContent("Center Point");
-    marker.bindPopup(popup);
-</script>
 </html>
