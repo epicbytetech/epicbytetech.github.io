@@ -6,35 +6,64 @@
     <title>Fish Species Selector</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
-        #fish-info { margin-top: 20px; }
-        img { max-width: 300px; height: auto; margin-top: 10px; }
+        #fish-info { margin-top: 20px; display: none; }
+        img { max-width: 300px; height: auto; margin-top: 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
     <h2>Select a Fish Species</h2>
     <select id="fish-select">
-        <option value="">--Choose a Fish--</option>
-        <option value="Atlantic Salmon" data-img="https://www.fishwatch.gov/images/atlantic-salmon.jpg" data-status="Recovering">Atlantic Salmon</option>
-        <option value="Pacific Cod" data-img="https://www.fishwatch.gov/images/pacific-cod.jpg" data-status="Sustainable">Pacific Cod</option>
-        <option value="Yellowfin Tuna" data-img="https://www.fishwatch.gov/images/yellowfin-tuna.jpg" data-status="Overfished">Yellowfin Tuna</option>
-        <option value="Alaska Pollock" data-img="https://www.fishwatch.gov/images/alaska-pollock.jpg" data-status="Healthy">Alaska Pollock</option>
-        <option value="Gulf Shrimp" data-img="https://www.fishwatch.gov/images/gulf-shrimp.jpg" data-status="Stable">Gulf Shrimp</option>
+        <option value="">--Loading Fish List--</option>
     </select>
 
     <div id="fish-info">
         <h3 id="fish-name"></h3>
-        <p id="fish-status"></p>
+        <p><strong>Population Status:</strong> <span id="population-status"></span></p>
         <img id="fish-image" src="" alt="">
     </div>
 
     <script>
-        document.getElementById("fish-select").addEventListener("change", function () {
-            let selectedOption = this.options[this.selectedIndex];
-            document.getElementById("fish-name").textContent = selectedOption.value;
-            document.getElementById("fish-status").textContent = "Population Status: " + selectedOption.getAttribute("data-status");
-            document.getElementById("fish-image").src = selectedOption.getAttribute("data-img");
-            document.getElementById("fish-image").alt = selectedOption.value;
+        document.addEventListener("DOMContentLoaded", () => {
+            const select = document.getElementById("fish-select");
+            const fishInfo = document.getElementById("fish-info");
+            const fishName = document.getElementById("fish-name");
+            const populationStatus = document.getElementById("population-status");
+            const fishImage = document.getElementById("fish-image");
+
+            // Fetch fish species from FishWatch API
+            fetch("https://www.fishwatch.gov/api/species")
+                .then(response => response.json())
+                .then(data => {
+                    select.innerHTML = '<option value="">--Choose a Fish--</option>';
+                    
+                    data.forEach(fish => {
+                        let option = document.createElement("option");
+                        option.value = fish["Species Name"];
+                        option.setAttribute("data-img", fish["Image Gallery"][0]?.src || "");
+                        option.setAttribute("data-status", fish["Population Status"] || "Unknown");
+                        option.textContent = fish["Species Name"];
+                        select.appendChild(option);
+                    });
+
+                    // Handle selection change
+                    select.addEventListener("change", function () {
+                        let selectedOption = this.options[this.selectedIndex];
+                        if (selectedOption.value) {
+                            fishName.textContent = selectedOption.value;
+                            populationStatus.textContent = selectedOption.getAttribute("data-status");
+                            fishImage.src = selectedOption.getAttribute("data-img");
+                            fishImage.alt = selectedOption.value;
+                            fishInfo.style.display = "block";
+                        } else {
+                            fishInfo.style.display = "none";
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching fish data:", error);
+                    select.innerHTML = '<option value="">--Failed to Load Data--</option>';
+                });
         });
     </script>
 
